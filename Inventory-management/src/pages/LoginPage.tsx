@@ -83,7 +83,7 @@ export default function LoginPage() {
             </Button>
 
             <Typography align="center">
-              {/* Demo credentials: <strong>admin@example.com</strong> / <strong>Password123!</strong> */}
+              Demo credentials: <strong>InventoryManager@gmail.com</strong> / <strong>Q1W2q1w2!@!@</strong>
             </Typography>
           </Box>
         </Paper>

@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using InventoryManagement.Api.Models;
 using InventoryManagement.Api.Data;
+using InventoryManagement.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,5 +77,18 @@ app.UseCors("AllowAll");
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Seed default user
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var userManager = services.GetRequiredService<UserManager<AppUser>>();
+
+    // Ensure database is created and migrated
+    var context = services.GetRequiredService<WarehouseDbContext>();
+    context.Database.Migrate(); // Ensures latest migrations
+
+    await DefaultData.InitializeAsync(userManager);
+}
 
 app.Run();
