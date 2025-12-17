@@ -29,6 +29,7 @@ import {
   Delete as DeleteIcon,
   History as HistoryIcon,
   Logout as LogoutIcon,
+  Search as SearchIcon,
 } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import api from '../services/api';
@@ -36,7 +37,7 @@ import type { Product } from '../models/models';
 import ProductDialog from '../components/ProductDialog';
 import AdjustmentDialog from '../components/AdjustmentDialog';
 import HistoricalDialog from '../components/HistoricalDialog';
-
+import { TextField, InputAdornment } from '@mui/material';
 interface HomeProps {
   onLogout: () => void;
 }
@@ -51,6 +52,7 @@ export default function Home({ onLogout }: HomeProps) {
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [adjustmentType, setAdjustmentType] = useState<'add' | 'remove'>('add');
+  const [searchSkuName, setSearchSkuName] = useState('');
 
   const loadProducts = async () => {
     try {
@@ -150,73 +152,88 @@ export default function Home({ onLogout }: HomeProps) {
                 <CircularProgress />
               </Box>
             ) : (
-              <TableContainer component={Paper} sx={{ mt: 3 }}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell><strong>Name</strong></TableCell>
-                      <TableCell><strong>SKU</strong></TableCell>
-                      <TableCell align="right"><strong>Price</strong></TableCell>
-                      <TableCell align="center"><strong>Current Stock</strong></TableCell>
-                      <TableCell align="center"><strong>Add Remove Stock</strong></TableCell>
-                      <TableCell align="center"><strong></strong></TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {products.map((product) => (
-                      <TableRow key={product.id}>
-                        <TableCell>{product.name}</TableCell>
-                        <TableCell>{product.sku}</TableCell>
-                        <TableCell align="right">${product.price.toFixed(2)}</TableCell>
-                        <TableCell align="center">
-                          <Typography
-                            variant="h6"
-                            color={product.currentQuantity === 0 ? 'error' : 'success.main'}
-                          >
-                            {product.currentQuantity}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align="center">
-                          <Tooltip title="Add Stock">
-                            <IconButton color="success" onClick={() => openAdjustment(product, 'add')}>
-                              <AddIcon />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title="Remove Stock">
-                            <IconButton color="warning" onClick={() => openAdjustment(product, 'remove')}>
-                              <RemoveIcon />
-                            </IconButton>
-                          </Tooltip>
-                          
-                        </TableCell>
-                        <TableCell align="center">
-                          <Tooltip title="Edit Product">
-                            <IconButton
-                              onClick={() => {
-                                setSelectedProduct(product);
-                                setProductDialogOpen(true);
-                              }}
-                            >
-                              <EditIcon />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title="View History">
-                            <IconButton color="info" onClick={() => openHistorical(product)}>
-                              <HistoryIcon />
-                            </IconButton>
-                          </Tooltip>
-                            {/* <IconButton color="error" onClick={() => handleDeleteClick(product)}>
-                              <DeleteIcon />
-                            </IconButton> */}
-                          <Button onClick={() => handleDeleteClick(product)} color="error" variant="contained">
-                            Delete
-                          </Button>
-                        </TableCell>
+              <Container>
+                <Box sx={{ mb: 4, maxWidth: 400 }}>
+                  <TextField
+                    fullWidth
+                    label="Search by SKU or Name"
+                    value={searchSkuName}
+                    onChange={(e) => setSearchSkuName(e.target.value)}
+                    variant="outlined"
+                  />
+                </Box>
+                <TableContainer component={Paper} sx={{ mt: 3 }}>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell><strong>Name</strong></TableCell>
+                        <TableCell><strong>SKU</strong></TableCell>
+                        <TableCell align="right"><strong>Price</strong></TableCell>
+                        <TableCell align="center"><strong>Current Stock</strong></TableCell>
+                        <TableCell align="center"><strong>Add Remove Stock</strong></TableCell>
+                        <TableCell align="center"><strong></strong></TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                    </TableHead>
+                    <TableBody>
+                      {products.filter((product) =>
+                          searchSkuName === '' || 
+                          product.sku.toLowerCase().includes(searchSkuName.toLowerCase()) ||
+                          product.name.toLowerCase().includes(searchSkuName.toLowerCase())
+                        ).map((product) => (
+                        <TableRow key={product.id}>
+                          <TableCell>{product.name}</TableCell>
+                          <TableCell>{product.sku}</TableCell>
+                          <TableCell align="right">${product.price.toFixed(2)}</TableCell>
+                          <TableCell align="center">
+                            <Typography
+                              variant="h6"
+                              color={product.currentQuantity === 0 ? 'error' : 'success.main'}
+                            >
+                              {product.currentQuantity}
+                            </Typography>
+                          </TableCell>
+                          <TableCell align="center">
+                            <Tooltip title="Add Stock">
+                              <IconButton color="success" onClick={() => openAdjustment(product, 'add')}>
+                                <AddIcon />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Remove Stock">
+                              <IconButton color="warning" onClick={() => openAdjustment(product, 'remove')}>
+                                <RemoveIcon />
+                              </IconButton>
+                            </Tooltip>
+                            
+                          </TableCell>
+                          <TableCell align="center">
+                            <Tooltip title="Edit Product">
+                              <IconButton
+                                onClick={() => {
+                                  setSelectedProduct(product);
+                                  setProductDialogOpen(true);
+                                }}
+                              >
+                                <EditIcon />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="View History">
+                              <IconButton color="info" onClick={() => openHistorical(product)}>
+                                <HistoryIcon />
+                              </IconButton>
+                            </Tooltip>
+                              {/* <IconButton color="error" onClick={() => handleDeleteClick(product)}>
+                                <DeleteIcon />
+                              </IconButton> */}
+                            <Button onClick={() => handleDeleteClick(product)} color="error" variant="contained">
+                              Delete
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Container>
             )}
           </Box>
 

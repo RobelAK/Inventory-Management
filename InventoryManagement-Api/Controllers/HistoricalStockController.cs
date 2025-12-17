@@ -18,31 +18,21 @@ public class HistoricalStockController : ControllerBase
     }
 
     [HttpGet("{productId}")]
-    public async Task<ActionResult<int>> GetHistoricalStock(
-    int productId,
-    [FromQuery] DateTime asOf)
+    public async Task<ActionResult<int>> GetHistoricalStock(int productId, [FromQuery] DateTime asOf)
     {
         if (asOf == default)
             return BadRequest("'asOf' is required.");
 
-        Console.WriteLine($"asOf (LOCAL): {asOf:yyyy-MM-dd HH:mm:ss}");
-        Console.WriteLine($"Kind        : {asOf.Kind}");
-
         asOf = DateTime.SpecifyKind(asOf, DateTimeKind.Unspecified);
 
-        var transactions = await _context.StockTransactions
-            .Where(t =>
-                t.ProductId == productId &&
-                t.DateTime <= asOf)
-            .OrderBy(t => t.DateTime)
-            .ToListAsync();
+        var latestTransaction = await _context.StockTransactions
+            .Where(t => t.ProductId == productId && t.DateTime <= asOf)
+            .OrderByDescending(t => t.DateTime)  // Most recent first
+            .FirstOrDefaultAsync();
 
-        int stockAtTime = transactions.Sum(t =>
-            t.Type == TransactionType.Add
-                ? t.QuantityChanged
-                : -t.QuantityChanged);
-
-        return Ok(stockAtTime);
+        // If no transactions yet → stock = 0
+        // If transactions exist → return the snapshot NewTotal
+        return Ok(latestTransaction?.NewTotal ?? 0);
     }
 
 }
