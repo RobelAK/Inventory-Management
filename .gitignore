@@ -1,0 +1,26 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+Inventory-management/node_modules
+Inventory-management/dist
+Inventory-management/dist-ssr
+*.local
+
+# Editor directories and files
+Inventory-management/.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+InventoryManagement-Api/.vs
