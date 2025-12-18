@@ -1,4 +1,4 @@
-# The Temporal Warehouse - Inventory Management System
+# Inventory Management System
 
 A full-stack inventory management application built as a senior full-stack developer technical assessment.
 
