@@ -1,9 +1,5 @@
 # Inventory Management System
 
-A full-stack inventory management application built as a senior full-stack developer technical assessment.
-
-This system provides strict auditability of stock levels over time, allowing users to view the exact stock quantity of a product at any historical point in time.
-
 ## Features
 
 - **Product Management**: Full CRUD operations for products (Name, SKU, Price, CurrentQuantity)
