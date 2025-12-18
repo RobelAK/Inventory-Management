@@ -5,7 +5,7 @@ using InventoryManagement.Api.Data;
 using InventoryManagement.Api.Models;
 
 namespace InventoryManagement.Api.Controllers;
-[Authorize]
+[Authorize(Roles = "Admin,InventoryManager")]
 [Route("api/[controller]")]
 [ApiController]
 public class StockAdjustmentsController : ControllerBase
@@ -18,59 +18,62 @@ public class StockAdjustmentsController : ControllerBase
     }
 
     [HttpPost("add/{productId}")]
-    public async Task<ActionResult> AddStock(int productId, [FromBody] int quantity)
+    public async Task<ActionResult> AddStock(int productId, [FromBody] StockAdjustmentModel model)
     {
-        if (quantity <= 0) return BadRequest("Quantity must be greater than zero.");
+        if (model.Quantity <= 0) return BadRequest("Quantity must be positive.");
 
         var product = await _context.Products.FindAsync(productId);
         if (product == null) return NotFound("Product not found.");
 
-        product.CurrentQuantity += quantity;
+        // Manual concurrency check
+        if (product.ConcurrencyGuid != model.OriginalConcurrencyGuid)
+        {
+            return Conflict("Concurrency conflict: The product was modified by another user. Please refresh.");
+        }
+
+        product.CurrentQuantity += model.Quantity;
 
         var transaction = new StockTransaction
         {
             ProductId = productId,
             DateTime = DateTime.Now,
             Type = TransactionType.Add,
-            QuantityChanged = quantity,
+            QuantityChanged = model.Quantity,
             NewTotal = product.CurrentQuantity
         };
 
         _context.StockTransactions.Add(transaction);
-
-        try
-        {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            return Conflict("Concurrency conflict: Another operation modified the product simultaneously.");
-        }
+        await _context.SaveChangesAsync(); // Interceptor generates new GUID
 
         return Ok(new { NewQuantity = product.CurrentQuantity });
     }
 
     [HttpPost("remove/{productId}")]
-    public async Task<ActionResult> RemoveStock(int productId, [FromBody] int quantity)
+    public async Task<ActionResult> RemoveStock(int productId, [FromBody] StockAdjustmentModel model)
     {
-        if (quantity <= 0) return BadRequest("Quantity must be greater than zero.");
+        if (model.Quantity <= 0) return BadRequest("Quantity must be positive.");
 
         var product = await _context.Products.FindAsync(productId);
         if (product == null) return NotFound("Product not found.");
-
-        if (product.CurrentQuantity < quantity)
+        // Manual concurrency check
+        if (product.ConcurrencyGuid != model.OriginalConcurrencyGuid)
         {
-            return BadRequest($"Insufficient stock. Current: {product.CurrentQuantity}, Requested removal: {quantity}");
+            return Conflict("Concurrency conflict: The product was modified by another user. Please refresh.");
         }
 
-        product.CurrentQuantity -= quantity;
+        if (product.CurrentQuantity < model.Quantity)
+        {
+            return BadRequest($"Insufficient stock. Current: {product.CurrentQuantity}, Requested removal: {model.Quantity}");
+        }
+
+        product.CurrentQuantity -= model.Quantity;
 
         var transaction = new StockTransaction
         {
             ProductId = productId,
             DateTime = DateTime.Now,
             Type = TransactionType.Remove,
-            QuantityChanged = quantity,
+            QuantityChanged = model.Quantity,
             NewTotal = product.CurrentQuantity
         };
 

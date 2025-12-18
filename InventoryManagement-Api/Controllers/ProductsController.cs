@@ -6,7 +6,7 @@ using InventoryManagement.Api.Models;
 using Npgsql;
 
 namespace InventoryManagement.Api.Controllers;
-[Authorize]
+[Authorize(Roles = "Admin,InventoryManager")]
 [Route("api/[controller]")]
 [ApiController]
 public class ProductsController : ControllerBase

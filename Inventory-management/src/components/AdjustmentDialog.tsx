@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import api from '../services/api';
 import type { Product } from '../models/models';
+import { toast } from 'react-toastify';
 
 interface AdjustmentDialogProps {
   open: boolean;
@@ -35,31 +36,48 @@ const AdjustmentDialog: React.FC<AdjustmentDialogProps> = ({
   }, [open]);
 
   const handleSubmit = async () => {
+    console.log("handlesubmit is called")
     if (quantity <= 0) {
       setError('Quantity must be positive.');
       return;
     }
 
     if (!product) return;
-
+    const endpoint = type === 'add'
+      ? `/api/StockAdjustments/add/${product.id}`
+      : `/api/StockAdjustments/remove/${product.id}`;
     try {
-      const endpoint = type === 'add'
-        ? `/api/StockAdjustments/add/${product.id}`
-        : `/api/StockAdjustments/remove/${product.id}`;
-
-      await api.post(endpoint, quantity);
+      await api.post(endpoint, {
+        quantity,
+        originalConcurrencyGuid: product!.concurrencyGuid,
+      });
+      console.log("update success")
+      toast.success(`Stock ${type === 'add' ? 'added' : 'removed'} successfully`);
       onAdjusted();
       onClose();
     } catch (err: any) {
-      const message = err.response?.data || 'Adjustment failed.';
-      setError(
-        type === 'remove' && message.includes('Insufficient')
-          ? message
-          : message.includes('Concurrency')
-          ? 'Race condition detected. Only one adjustment succeeded. Please refresh.'
-          : message
-      );
+      if (err.response?.status === 409) {
+        toast.error('Concurrency conflict: Another user modified the stock. Refreshing data...');
+        onAdjusted(); // Force reload
+      } else {
+        toast.error(err.response?.data || 'Adjustment failed');
+      }
+      onClose();
     }
+    // try {
+    //   await api.post(endpoint, quantity);
+    //   onAdjusted();
+    //   onClose();
+    // } catch (err: any) {
+    //   const message = err.response?.data || 'Adjustment failed.';
+    //   setError(
+    //     type === 'remove' && message.includes('Insufficient')
+    //       ? message
+    //       : message.includes('Concurrency')
+    //       ? 'Race condition detected. Only one adjustment succeeded. Please refresh.'
+    //       : message
+    //   );
+    // }
   };
 
   return (

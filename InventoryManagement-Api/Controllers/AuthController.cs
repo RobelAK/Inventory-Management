@@ -52,12 +52,21 @@ public class AuthController : ControllerBase
 
     private string GenerateJwtToken(AppUser user)
     {
-        var claims = new[]
+        // Get user roles
+        var roles = _userManager.GetRolesAsync(user).Result;
+
+        var claims = new List<Claim>
+    {
+        new Claim(JwtRegisteredClaimNames.Sub, user.Email!),
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        new Claim(ClaimTypes.NameIdentifier, user.Id)
+    };
+
+        // Add each role as a separate claim
+        foreach (var role in roles)
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Email!),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.NameIdentifier, user.Id)
-        };
+            claims.Add(new Claim(ClaimTypes.Role, role));
+        }
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

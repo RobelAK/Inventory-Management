@@ -5,7 +5,7 @@ using InventoryManagement.Api.Data;
 using InventoryManagement.Api.Models;
 
 namespace InventoryManagement.Api.Controllers;
-[Authorize]
+[Authorize(Roles = "Admin,InventoryManager")]
 [Route("api/[controller]")]
 [ApiController]
 public class HistoricalStockController : ControllerBase

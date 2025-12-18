@@ -1,5 +1,41 @@
 [
   {
+    "ContainingType": "TemporalWarehouse.Api.Controllers.AdminController",
+    "Method": "AssignRole",
+    "RelativePath": "api/Admin/assign-role",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "TemporalWarehouse.Api.Controllers.AssignRoleModel",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "TemporalWarehouse.Api.Controllers.AdminController",
+    "Method": "GetRoles",
+    "RelativePath": "api/Admin/roles",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "TemporalWarehouse.Api.Controllers.AdminController",
+    "Method": "GetUsers",
+    "RelativePath": "api/Admin/users",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "InventoryManagement.Api.Controllers.AuthController",
     "Method": "Login",
     "RelativePath": "api/Auth/login",
@@ -185,8 +221,8 @@
         "IsRequired": true
       },
       {
-        "Name": "quantity",
-        "Type": "System.Int32",
+        "Name": "model",
+        "Type": "StockAdjustmentModel",
         "IsRequired": true
       }
     ],
@@ -206,8 +242,8 @@
         "IsRequired": true
       },
       {
-        "Name": "quantity",
-        "Type": "System.Int32",
+        "Name": "model",
+        "Type": "StockAdjustmentModel",
         "IsRequired": true
       }
     ],

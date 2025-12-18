@@ -7,6 +7,7 @@ import {
   Typography,
   Paper,
   CircularProgress,
+  Link,
 } from '@mui/material';
 import { toast } from 'react-toastify';
 import api from '../services/api';
@@ -24,7 +25,7 @@ export default function LoginPage() {
 
     try {
       const response = await api.post('/api/Auth/login', { email, password });
-      login(response.data.token);
+      login(response.data.token, email);
       toast.success('Login successful!');
     } catch (err: any) {
       toast.error(err.response?.data || 'Invalid email or password');
@@ -81,9 +82,14 @@ export default function LoginPage() {
             >
               {loading ? <CircularProgress size={24} /> : 'Sign In'}
             </Button>
+            <Typography align="center" sx={{ mt: 2 }}>
+              <Link href="/register" variant="body2">
+                Don't have an account? Register
+              </Link>
+            </Typography>
 
             <Typography align="center">
-              Demo credentials: <strong>InventoryManager@gmail.com</strong> / <strong>Q1W2q1w2!@!@</strong>
+              Admin credentials: <strong>admin@gmail.com</strong> / <strong>Admin!1234</strong>
             </Typography>
           </Box>
         </Paper>

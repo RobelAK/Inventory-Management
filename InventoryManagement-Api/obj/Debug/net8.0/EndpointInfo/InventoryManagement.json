@@ -5,6 +5,61 @@
     "version": "1.0"
   },
   "paths": {
+    "/api/Admin/users": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Admin/roles": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Admin/assign-role": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignRoleModel"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignRoleModel"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignRoleModel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Auth/register": {
       "post": {
         "tags": [
@@ -323,20 +378,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "integer",
-                "format": "int32"
+                "$ref": "#/components/schemas/StockAdjustmentModel"
               }
             },
             "text/json": {
               "schema": {
-                "type": "integer",
-                "format": "int32"
+                "$ref": "#/components/schemas/StockAdjustmentModel"
               }
             },
             "application/*+json": {
               "schema": {
-                "type": "integer",
-                "format": "int32"
+                "$ref": "#/components/schemas/StockAdjustmentModel"
               }
             }
           }
@@ -368,20 +420,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "integer",
-                "format": "int32"
+                "$ref": "#/components/schemas/StockAdjustmentModel"
               }
             },
             "text/json": {
               "schema": {
-                "type": "integer",
-                "format": "int32"
+                "$ref": "#/components/schemas/StockAdjustmentModel"
               }
             },
             "application/*+json": {
               "schema": {
-                "type": "integer",
-                "format": "int32"
+                "$ref": "#/components/schemas/StockAdjustmentModel"
               }
             }
           }
@@ -396,6 +445,20 @@
   },
   "components": {
     "schemas": {
+      "AssignRoleModel": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "nullable": true
+          },
+          "role": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "LoginModel": {
         "type": "object",
         "properties": {
@@ -450,6 +513,20 @@
           "password": {
             "type": "string",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "StockAdjustmentModel": {
+        "type": "object",
+        "properties": {
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "originalConcurrencyGuid": {
+            "type": "string",
+            "format": "uuid"
           }
         },
         "additionalProperties": false

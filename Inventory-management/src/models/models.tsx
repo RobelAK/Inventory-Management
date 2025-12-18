@@ -4,7 +4,7 @@ export interface Product {
   sku: string;
   price: number;
   currentQuantity: number;
-  rowVersion: string; // byte[] comes as base64 string from EF
+  concurrencyGuid: string;  // Now required - GUID as string
 }
 
 export interface StockTransaction {

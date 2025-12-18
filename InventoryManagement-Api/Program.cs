@@ -5,7 +5,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using InventoryManagement.Api.Models;
 using InventoryManagement.Api.Data;
-using InventoryManagement.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,17 +77,27 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Seed default user
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    var userManager = services.GetRequiredService<UserManager<AppUser>>();
+    try
+    {
+        var context = services.GetRequiredService<WarehouseDbContext>();
+        var userManager = services.GetRequiredService<UserManager<AppUser>>();
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
-    // Ensure database is created and migrated
-    var context = services.GetRequiredService<WarehouseDbContext>();
-    context.Database.Migrate(); // Ensures latest migrations
+        context.Database.Migrate();
 
-    await DefaultData.InitializeAsync(userManager);
+        await DefaultData.InitializeAsync(userManager, roleManager);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while seeding the database.");
+    }
 }
+
+app.Run();
 
 app.Run();

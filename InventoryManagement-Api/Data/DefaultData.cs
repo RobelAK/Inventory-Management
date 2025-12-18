@@ -1,31 +1,41 @@
 ﻿using InventoryManagement.Api.Models;
 using Microsoft.AspNetCore.Identity;
 
-namespace InventoryManagement.Data
+namespace InventoryManagement.Api.Data;
+
+public static class DefaultData
 {
-    public class DefaultData
+    public static async Task InitializeAsync(
+        UserManager<AppUser> userManager,
+        RoleManager<IdentityRole> roleManager)
     {
-        public static async Task InitializeAsync(UserManager<AppUser> userManager)
+        // Create roles
+        string[] roles = { "Admin", "InventoryManager" };
+        foreach (var role in roles)
         {
-            var email = "InventoryManager@gmail.com";
-            var password = "Q1W2q1w2!@!@";
-
-            if (await userManager.FindByEmailAsync(email) == null)
+            if (!await roleManager.RoleExistsAsync(role))
             {
-                var user = new AppUser
-                {
-                    UserName = email,
-                    Email = email,
-                    EmailConfirmed = true // Optional: skip email confirmation
-                };
+                await roleManager.CreateAsync(new IdentityRole(role));
+            }
+        }
 
-                var result = await userManager.CreateAsync(user, password);
+        // Create admin user
+        var adminEmail = "admin@gmail.com";
+        var adminPassword = "Admin!1234";
 
-                if (result.Succeeded)
-                {
-                    // Optional: Add to role if you have roles
-                    // await userManager.AddToRoleAsync(user, "Admin");
-                }
+        if (await userManager.FindByEmailAsync(adminEmail) == null)
+        {
+            var adminUser = new AppUser
+            {
+                UserName = adminEmail,
+                Email = adminEmail,
+                EmailConfirmed = true
+            };
+
+            var result = await userManager.CreateAsync(adminUser, adminPassword);
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(adminUser, "Admin");
             }
         }
     }
